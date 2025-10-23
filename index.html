@@ -1,101 +1,87 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Googleレビュアー14タイプ図鑑【完全版】</title>
+  <meta name="description" content="Googleマップのレビュー評価パターンから、14の個性的なタイプを発見。108名の実データに基づく性格分析。">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
+    :root { --grad: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); }
+    html, body { height: 100%; }
     body {
-      font-family: 'Noto Sans JP', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      font-family: 'Noto Sans JP', system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+      background: var(--grad);
       min-height: 100vh;
+      overflow-x: hidden;
     }
+    /* Cards */
     .character-card {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.25);
+      transition: transform .25s ease, box-shadow .25s ease;
+      overflow: visible; /* avoid content clipping */
     }
     .character-card:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 20px 60px rgba(31, 38, 135, 0.5);
+      transform: translateY(-6px);
+      box-shadow: 0 18px 56px rgba(31, 38, 135, 0.35);
     }
     .character-image {
       width: 220px;
       height: 220px;
       border-radius: 50%;
       object-fit: cover;
-      border: 4px solid;
-      transition: all 0.3s ease;
+      border: 4px solid currentColor;
+      background: white;
+      display: block;
     }
-    .character-image:hover { transform: scale(1.05); }
-    .gold-border { border-color: #FFD700; background: linear-gradient(135deg, #FFD700, #FFA500); }
-    .silver-border { border-color: #4A90E2; background: linear-gradient(135deg, #4A90E2, #87CEEB); }
-    .green-border { border-color: #5CB85C; background: linear-gradient(135deg, #5CB85C, #90EE90); }
-    .orange-border { border-color: #FF8C00; background: linear-gradient(135deg, #FF8C00, #FFD700); }
-    .red-border { border-color: #DC3545; background: linear-gradient(135deg, #DC3545, #8B0000); }
-    .progress-bar {
-      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-      height: 8px;
-      border-radius: 4px;
-      transition: all 0.3s ease;
+    .badge {
+      font-weight: 700;
+      font-size: .9rem;
+      border-radius: 9999px;
+      padding: .25rem .75rem;
+      background: rgba(0,0,0,.06);
+      display: inline-block;
     }
-    .star-rating { color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.8);
-    }
-    .modal-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      max-width: 90%;
-      max-height: 90%;
-    }
-    .filter-btn.active {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-    }
-    .sparkle { position: absolute; color: #FFD700; animation: sparkle 2s infinite; }
-    @keyframes sparkle {
-      0%, 100% { opacity: 0; transform: scale(0); }
-      50% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in-up { animation: fadeInUp 0.6s ease-out; }
+    .progress-wrap { background: rgba(0,0,0,.08); height: 8px; border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 8px; background: linear-gradient(90deg, #667eea, #764ba2, #f093fb); width: 0; }
+    /* Type color accents */
+    .gold   { color: #DAA520; }
+    .silver { color: #4A90E2; }
+    .green  { color: #5CB85C; }
+    .orange { color: #FF8C00; }
+    .red    { color: #C53030; }
+    /* Header */
+    .fade-in { animation: fadeIn .6s ease-out both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px);} to { opacity: 1; transform: translateY(0);} }
+    /* Modal */
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:1000; }
+    .modal.open { display:block; }
+    .modal img { max-width: 90vw; max-height: 85vh; border-radius: 1rem; }
+    .filter-btn.active { background: rgba(255,255,255,.25); color:#fff; }
   </style>
 </head>
 <body>
   <!-- Header -->
   <header class="text-center py-16 px-4">
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-6xl font-black text-white mb-4 drop-shadow-2xl">
-        <i class="fas fa-star mr-4"></i>
-        Googleレビュアー14タイプ図鑑
-        <i class="fas fa-star ml-4"></i>
+      <h1 class="text-5xl md:text-6xl font-black text-white mb-4 drop-shadow-2xl fade-in">
+        <i class="fas fa-star mr-3"></i>Googleレビュアー14タイプ図鑑<i class="fas fa-star ml-3"></i>
       </h1>
-      <p class="text-2xl text-white mb-4 font-medium">あなたは何タイプ？108名の実データから導き出された性格分析</p>
-      <p class="text-lg text-white opacity-90 mb-6">Googleマップのレビュー評価パターンから、14の個性的なタイプを発見。最も多い評価と2番目に多い評価の組み合わせで、あなたのレビュアー性格が分かる！</p>
-      <div class="text-2xl text-yellow-300 font-bold animate-pulse">✨全14タイプのオリジナルキャラクター完全収録！✨</div>
+      <p class="text-xl md:text-2xl text-white mb-3 font-medium fade-in">あなたは何タイプ？108名の実データから導き出された性格分析</p>
+      <p class="text-white opacity-90 mb-5 fade-in">Googleマップのレビュー評価パターンから、14の個性的なタイプを発見。<br class="hidden md:block">最も多い評価と2番目に多い評価の組み合わせで、あなたのレビュアー性格が分かる！</p>
+      <div class="text-2xl text-yellow-300 font-bold animate-pulse fade-in">✨全14タイプのオリジナルキャラクター完全収録！✨</div>
     </div>
   </header>
 
-  <!-- Statistics -->
-  <section class="max-w-6xl mx-auto px-4 mb-12">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+  <!-- Stats -->
+  <section class="max-w-6xl mx-auto px-4 mb-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
       <div class="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-2xl p-6 text-center text-white">
         <div class="text-3xl font-black">108名</div>
         <div class="text-sm opacity-80">総サンプル数</div>
@@ -115,30 +101,311 @@
     </div>
   </section>
 
-  <!-- Filters -->
-  <section class="max-w-6xl mx-auto px-4 mb-8">
-    <div class="flex flex-wrap gap-4 justify-center">
-      <button class="filter-btn active px-6 py-3 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="all">すべて</button>
-      <button class="filter-btn px-6 py-3 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="positive">ポジティブ系</button>
-      <button class="filter-btn px-6 py-3 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="neutral">ニュートラル系</button>
-      <button class="filter-btn px-6 py-3 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="negative">ネガティブ系</button>
+  <!-- Filters & Search -->
+  <section class="max-w-6xl mx-auto px-4 mb-6">
+    <div class="flex flex-wrap gap-3 justify-center">
+      <button class="filter-btn active px-5 py-2 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="all">すべて</button>
+      <button class="filter-btn px-5 py-2 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="positive">ポジティブ系</button>
+      <button class="filter-btn px-5 py-2 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="neutral">ニュートラル系</button>
+      <button class="filter-btn px-5 py-2 rounded-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white font-medium transition-all" data-filter="negative">ネガティブ系</button>
     </div>
-    <div class="mt-6 max-w-md mx-auto">
+    <div class="mt-5 max-w-md mx-auto">
       <input type="text" id="searchInput" placeholder="キャラクター名や評価パターンで検索..." class="w-full px-4 py-3 rounded-2xl bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white placeholder-white placeholder-opacity-70 border-0 focus:ring-4 focus:ring-white focus:ring-opacity-30">
     </div>
   </section>
 
-  <!-- Character Grid -->
+  <!-- Cards -->
   <main class="max-w-7xl mx-auto px-4 pb-16">
-    <div id="characterGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    <div id="characterGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- The 14 cards start -->
+      
+      <article class="character-card fade-in" data-type="positive" data-character="ゴールドパートナー ☆5→☆4">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 gold">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/d183f0bf-90ac-4cd0-846a-044905562801.png" alt="ゴールドパートナー" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆5→☆4</h3>
+          <p class="text-2xl font-bold mb-1">ゴールドパートナー</p>
+          <div class="gold mb-2">★★★★★ <span class='badge'>(最多タイプ)</span></div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 38.0% (41件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:38%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>基本的には最高評価を連発するポジティブタイプ。でも「完璧」を知っているからこそ、細かい部分で☆4をつける目が肥えた審査員。期待値が高いぶん、2番目の評価も厳しめになりがち。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「いいお店なんだけどね、あと一歩なんだよなぁ」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>このタイプは「ほぼ完璧」を求める常連客予備軍。細部へのこだわり（清潔感、接客の丁寧さ、料理の温度など）を徹底すれば、最強の味方に。☆4の理由を真摯に受け止めて改善すると、熱烈なファンになってくれる。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="positive" data-character="プラチナハンター ☆4→☆5">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 silver">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/ba1341d5-1691-479a-a2c4-e7caf65ad21f.png" alt="プラチナハンター" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆4→☆5</h3>
+          <p class="text-2xl font-bold mb-1">プラチナハンター</p>
+          <div class="silver mb-2">★★★★☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 15.7% (17件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:15.7%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>普段は「まぁ良かった」程度の☆4評価。でも本当に感動した時だけ☆5を出す、感情にブレーキをかけるタイプ。冷静で客観的な視点を持ち、滅多に最高評価をつけないからこそ、☆5の価値が重い。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「期待しすぎるとガッカリするからね」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>このタイプから☆5をもらうには「期待を超える体験」が必須。特別なサービス、サプライズ、予想外の感動が鍵。一度☆5をもらえたら、その口コミは信頼性抜群で集客効果大。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="neutral" data-character="ジャッジ ☆4→☆3">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 green">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/2ab9efa2-951c-4395-a1a1-226497854db3.png" alt="ジャッジ" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆4→☆3</h3>
+          <p class="text-2xl font-bold mb-1">ジャッジ</p>
+          <div class="green mb-2">★★★★☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 13.9% (15件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:13.9%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>「☆5は滅多にない」と考える現実派。ほとんどのお店を☆4か☆3で評価する、中間層の代表格。極端な評価を避け、公平な視点を大切にする良識派レビュアー。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「普通が一番だよ、普通が」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>安定したサービス品質が最重要。このタイプは「期待通り」で満足するため、看板に偽りなく、約束を守ることが信頼につながる。☆3でも悪い評価ではないので過度に気にしすぎない。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="negative" data-character="ジキルハイド ☆5→☆1">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 red">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/0f9e554c-e33f-411d-9646-d01e80d38e1b.png" alt="ジキルハイド" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆5→☆1</h3>
+          <p class="text-2xl font-bold mb-1">ジキルハイド</p>
+          <div class="red mb-2">★★★☆☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 11.1% (12件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:11.1%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>感情の振れ幅が激しい、オールオアナッシング型。良い体験には惜しみなく☆5、少しでも不快な思いをすると容赦なく☆1。中間がない極端派で、店舗にとっては諸刃の剣。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「最高か最悪か、それだけ」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>【最重要注意タイプ】小さなミスが致命傷に。接客態度、待ち時間、清潔感など基本的な部分で絶対に失敗しないこと。一度☆1をつけられると激しい批判口コミになる可能性大。逆に感動させれば最高の広告塔に。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="positive" data-character="ムードウェーブ ☆5→☆3">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 gold">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/2124e3ef-4bd3-4df4-8d79-b66457b6bbd7.png" alt="ムードウェーブ" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆5→☆3</h3>
+          <p class="text-2xl font-bold mb-1">ムードウェーブ</p>
+          <div class="gold mb-2">★★★☆☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 4.6% (5件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:4.6%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>基本はポジティブだけど、その日の気分やコンディションで評価が変わるタイプ。同じお店でも「今日は☆5！」「今回は☆3かな」と揺らぐ。感性重視で、雰囲気や感情に左右されやすい。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「その時の感じでね〜」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>一貫した体験の提供が鍵。時間帯やスタッフによってサービスの質にムラがあると評価が下がる。「いつ来ても同じクオリティ」を保つことで、☆5を安定してもらえる。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="positive" data-character="ダークホース ☆1→☆5">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 red">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/64cd3c13-aa36-4675-9628-ec77b0b53789.png" alt="ダークホース" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆1→☆5</h3>
+          <p class="text-2xl font-bold mb-1">ダークホース</p>
+          <div class="red mb-2">★★☆☆☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 3.7% (4件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:3.7%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>普段は厳しい目で☆1を連発するクレーマー気質。でも本当に良いものには心を開き、☆5をつける素直な一面も。不満を持ちやすいが、それを乗り越えた感動には弱い。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「まぁ、これは認めるよ」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>クレーム対応が試される相手。初期の不満を真摯に受け止め、誠実に対応すれば評価が180度変わる可能性。☆1をもらった後のリカバリーが評判を左右する。逆に放置すると炎上リスク大。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="negative" data-character="パーフェクトシーカー ☆4→☆2">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 silver">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/3a0f1479-9fe2-48d4-a864-19510c34341f.png" alt="パーフェクトシーカー" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆4→☆2</h3>
+          <p class="text-2xl font-bold mb-1">パーフェクトシーカー</p>
+          <div class="silver mb-2">★★☆☆☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 2.8% (3件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:2.8%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>基本は「まあまあ」の☆4だけど、些細な欠点を見つけると容赦なく☆2まで下げる辛口タイプ。完璧を100点として、マイナスポイントを積み重ねていく減点方式の評価者。細かいところまで見ているプロ意識の高いレビュアー。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「惜しい！あれさえなければねぇ」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>小さな欠点が命取り。トイレの清潔さ、スタッフの言葉遣い、提供スピードなど、細部のミスを見逃さない。チェックリストを作って品質管理を徹底することが重要。欠点を潰していけば高評価につながる。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="neutral" data-character="スロースターター ☆3→☆4">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 green">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/b0a647b6-64e1-44a1-b140-e16e5d348394.png" alt="スロースターター" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆3→☆4</h3>
+          <p class="text-2xl font-bold mb-1">スロースターター</p>
+          <div class="green mb-2">★★☆☆☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 2.8% (3件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:2.8%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>初訪問は☆3でスタート。リピートして良さを発見すると☆4に上げていく、段階的評価タイプ。一発では判断せず、何度か通って総合的に判断する慎重派。長期的な視点で店を応援したい気持ちも。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「まずは様子見だね」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>初回の印象は「普通」でも、リピート時の一貫性と改善姿勢が評価される。2回目以降の来店で「進化している」と感じさせることが☆4への昇格の鍵。常連客を大切にする姿勢が効果的。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="positive" data-character="トレジャーハンター ☆2→☆5">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 orange">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/9ff86e20-ebca-4c3a-bde3-f4b0a85cbd5c.png" alt="トレジャーハンター" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆2→☆5</h3>
+          <p class="text-2xl font-bold mb-1">トレジャーハンター</p>
+          <div class="orange mb-2">★☆☆☆☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 1.9% (2件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:1.9%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>最初は「うーん」と☆2をつけがち。でも隠れた魅力や意外な良さを発見すると、一気に☆5まで評価が急上昇する振れ幅の大きいタイプ。第一印象より中身を重視する玄人好み。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「見た目で判断しちゃダメだね」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>第一印象よりも「本質的な価値」で勝負。料理の味、スタッフの人柄、隠れたこだわりなど、気づいてもらえる工夫を。SNS映えより実質重視。説明やPOPで「こだわり」を伝えると◎。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="negative" data-character="デストロイヤー ☆1→☆2">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 red">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/0f5fe590-3fca-41df-8f3f-031cb627f5ff.png" alt="デストロイヤー" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆1→☆2</h3>
+          <p class="text-2xl font-bold mb-1">デストロイヤー</p>
+          <div class="red mb-2">★☆☆☆☆</div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 1.9% (2件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:1.9%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>基本的に何でも気に入らない、常に不満を抱えているタイプ。最低評価の☆1と、「まあ最悪じゃない」という☆2を行き来する。満足させるのは至難の業で、店舗側には試練の存在。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「どこもかしこもダメだね」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>【難易度MAX】このタイプを満足させるのは非常に困難。むしろ低評価を前提に、他の顧客への誠実な対応を見せることで第三者の評価を得る戦略が有効。クレームへの冷静な対応力が試される。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="negative" data-character="トラストブレイカー ☆4→☆1">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 silver">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/dd3ff37f-b08d-4f39-8e2d-149573b31088.png" alt="トラストブレイカー" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆4→☆1</h3>
+          <p class="text-2xl font-bold mb-1">トラストブレイカー</p>
+          <div class="silver mb-2">☆☆☆☆☆ <span class='badge'>(超レア)</span></div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 0.9% (1件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:0.9%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>普段は☆4で満足する好意的なタイプ。でも一度でも期待を裏切られると、☆1まで急降下する。信頼関係を重視し、裏切り行為（宣伝と違う、前回と質が違うなど）に敏感。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「期待してたのに、裏切られた…」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>【信頼管理型】広告や前回の体験と一貫性を保つことが最重要。「写真と実物が違う」「前回より質が落ちた」は厳禁。常に同じクオリティを維持し、約束を守ることで信頼を築く。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="positive" data-character="グロウアー ☆2→☆4">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 orange">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/b07a41d3-bed4-47b1-a422-e47f913d063a.png" alt="グロウアー" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆2→☆4</h3>
+          <p class="text-2xl font-bold mb-1">グロウアー</p>
+          <div class="orange mb-2">☆☆☆☆☆ <span class='badge'>(超レア)</span></div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 0.9% (1件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:0.9%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>控えめに☆2からスタートし、良い点を見つけて☆4まで上げていく穏健派。悪い点より良い点を探そうとするポジティブ思考の持ち主。時間をかけて評価を上げていく成長型レビュアー。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「よく見ると、いいところあるね」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>改善の努力が評価される。初回の欠点を素直に受け止め、改善している姿勢を見せれば評価が上がる。小さな改善の積み重ねをSNSで発信すると、このタイプの心に響く。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="negative" data-character="ドリームクラッシャー ☆5→☆2">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 gold">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/50452c11-8f85-40c5-a70b-b059f210c619.png" alt="ドリームクラッシャー" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆5→☆2</h3>
+          <p class="text-2xl font-bold mb-1">ドリームクラッシャー</p>
+          <div class="gold mb-2">☆☆☆☆☆ <span class='badge'>(超レア)</span></div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 0.9% (1件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:0.9%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>最高の期待を持って☆5を狙うが、少しでも理想と違うと一気に☆2まで落とす落差激しいタイプ。「こうあるべき」という強い理想像を持ち、そこから外れると厳しい評価に。完璧主義だが、完璧でない場合の失望も大きい。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「期待してたのと違う…」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>事前期待のコントロールが最重要。過剰な宣伝や誇大表現は逆効果。「このお店はこういう感じです」と正直に伝え、ギャップを生まない工夫を。メニュー写真や説明文は現実に即した表現にすることで、理想と現実のズレを防ぐ。</p></div>
+        </section>
+      </article>
+    
+      <article class="character-card fade-in" data-type="negative" data-character="ダークスパイラル ☆2→☆1">
+        <div class="text-center mb-4">
+          <div class="inline-block p-3 mb-3 orange">
+            <img src="https://cdn1.genspark.ai/user-upload-image/gemini_generated/7338f73d-27b7-4776-a869-6b91ade3ff27.png" alt="ダークスパイラル" class="character-image" onclick="openModal(this.src, this.alt)">
+          </div>
+          <h3 class="text-3xl font-black mb-1">☆2→☆1</h3>
+          <p class="text-2xl font-bold mb-1">ダークスパイラル</p>
+          <div class="orange mb-2">☆☆☆☆☆ <span class='badge'>(超レア)</span></div>
+          <div class="mb-3">
+            <div class="font-semibold mb-1">発生確率: 0.9% (1件/108件)</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:0.9%"></div></div>
+          </div>
+        </div>
+        <section class="space-y-4 text-gray-800">
+          <div><h4 class="font-bold text-lg mb-1">性格タイプ</h4><p>既に不満がある状態(☆2)から、さらに悪い体験をして☆1に転落させる、負のスパイラルタイプ。一度ネガティブな印象を持つと、その後の体験も悪い方向に解釈しがち。期待値が低い分、小さな失敗も「やっぱりダメだ」と確信に変わる。</p></div>
+          <div><h4 class="font-bold text-lg mb-1">口ぐせ</h4><p class="text-indigo-700 font-medium italic">「前も悪かったけど、今回はもっと酷い」</p></div>
+          <div><h4 class="font-bold text-lg mb-1">店舗側が気を付けるポイント</h4><p>【リカバリーのラストチャンス】☆2の段階で既に不満がある状態。この時点でのリカバリーが最後のチャンス。クレーム対応を迅速かつ誠実に行い、「改善しようとしている」姿勢を見せることで☆1への転落を防ぐ。一度☆1になると修復困難。</p></div>
+        </section>
+      </article>
+    
+    </div>
   </main>
 
   <!-- Modal -->
-  <div id="imageModal" class="modal">
-    <div class="modal-content">
-      <img id="modalImage" class="max-w-full max-h-full rounded-2xl" alt="">
-      <button class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    </div>
+  <div id="imageModal" class="modal flex items-center justify-center p-4">
+    <img id="modalImage" alt="">
+    <button aria-label="close" class="absolute top-4 right-4 text-white text-3xl" onclick="closeModal()"><i class="fas fa-times"></i></button>
   </div>
 
   <!-- Footer -->
@@ -146,152 +413,58 @@
     <div class="max-w-4xl mx-auto text-center">
       <h3 class="text-2xl font-bold mb-4">診断データについて</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-        <div>
-          <strong>サンプル数:</strong> 108名<br>
-          <strong>調査方法:</strong> Googleマップレビューアンケート
-        </div>
-        <div>
-          <strong>イラスト:</strong> AI生成<br>
-          <strong>技術:</strong> Gemini 2.0 Flash + nanobanana
-        </div>
-        <div>
-          <strong>作成日:</strong> 2025年<br>
-          <strong>© Genspark AI Table</strong>
-        </div>
+        <div><strong>サンプル数:</strong> 108名<br><strong>調査方法:</strong> Googleマップレビューアンケート</div>
+        <div><strong>イラスト:</strong> AI生成<br><strong>技術:</strong> Gemini 2.0 Flash + nanobanana</div>
+        <div><strong>作成日:</strong> 2025年<br><strong>© Genspark AI Table</strong></div>
       </div>
     </div>
   </footer>
 
   <script>
-    const characters = [
-      {"id":"gold-partner","pattern":"☆5→☆4","name":"ゴールドパートナー","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/d183f0bf-90ac-4cd0-846a-044905562801.png","probability":"38.0% (41件/108件)","rarity":5,"type":"positive","description":"基本的には最高評価を連発するポジティブタイプ。でも「完璧」を知っているからこそ、細かい部分で☆4をつける目が肥えた審査員。期待値が高いぶん、2番目の評価も厳しめになりがち。","catchphrase":"「いいお店なんだけどね、あと一歩なんだよなぁ」","advice":"このタイプは「ほぼ完璧」を求める常連客予備軍。細部へのこだわり（清潔感、接客の丁寧さ、料理の温度など）を徹底すれば、最強の味方に。☆4の理由を真摯に受け止めて改善すると、熱烈なファンになってくれる。","colorClass":"gold-border"},
-      {"id":"platinum-hunter","pattern":"☆4→☆5","name":"プラチナハンター","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/ba1341d5-1691-479a-a2c4-e7caf65ad21f.png","probability":"15.7% (17件/108件)","rarity":4,"type":"positive","description":"普段は「まぁ良かった」程度の☆4評価。でも本当に感動した時だけ☆5を出す、感情にブレーキをかけるタイプ。冷静で客観的な視点を持ち、滅多に最高評価をつけないからこそ、☆5の価値が重い。","catchphrase":"「期待しすぎるとガッカリするからね」","advice":"このタイプから☆5をもらうには「期待を超える体験」が必須。特別なサービス、サプライズ、予想外の感動が鍵。一度☆5をもらえたら、その口コミは信頼性抜群で集客効果大。","colorClass":"silver-border"},
-      {"id":"judge","pattern":"☆4→☆3","name":"ジャッジ","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/2ab9efa2-951c-4395-a1a1-226497854db3.png","probability":"13.9% (15件/108件)","rarity":4,"type":"neutral","description":"「☆5は滅多にない」と考える現実派。ほとんどのお店を☆4か☆3で評価する、中間層の代表格。極端な評価を避け、公平な視点を大切にする良識派レビュアー。","catchphrase":"「普通が一番だよ、普通が」","advice":"安定したサービス品質が最重要。このタイプは「期待通り」で満足するため、看板に偽りなく、約束を守ることが信頼につながる。☆3でも悪い評価ではないので過度に気にしすぎない。","colorClass":"green-border"},
-      {"id":"jekyll-hyde","pattern":"☆5→☆1","name":"ジキルハイド","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/0f9e554c-e33f-411d-9646-d01e80d38e1b.png","probability":"11.1% (12件/108件)","rarity":3,"type":"negative","description":"感情の振れ幅が激しい、オールオアナッシング型。良い体験には惜しみなく☆5、少しでも不快な思いをすると容赦なく☆1。中間がない極端派で、店舗にとっては諸刃の剣。","catchphrase":"「最高か最悪か、それだけ」","advice":"【最重要注意タイプ】小さなミスが致命傷に。接客態度、待ち時間、清潔感など基本的な部分で絶対に失敗しないこと。一度☆1をつけられると激しい批判口コミになる可能性大。逆に感動させれば最高の広告塔に。","colorClass":"red-border"},
-      {"id":"mood-wave","pattern":"☆5→☆3","name":"ムードウェーブ","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/2124e3ef-4bd3-4df4-8d79-b66457b6bbd7.png","probability":"4.6% (5件/108件)","rarity":3,"type":"positive","description":"基本はポジティブだけど、その日の気分やコンディションで評価が変わるタイプ。同じお店でも「今日は☆5！」「今回は☆3かな」と揺らぐ。感性重視で、雰囲気や感情に左右されやすい。","catchphrase":"「その時の感じでね〜」","advice":"一貫した体験の提供が鍵。時間帯やスタッフによってサービスの質にムラがあると評価が下がる。「いつ来ても同じクオリティ」を保つことで、☆5を安定してもらえる。","colorClass":"gold-border"},
-      {"id":"dark-horse","pattern":"☆1→☆5","name":"ダークホース","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/64cd3c13-aa36-4675-9628-ec77b0b53789.png","probability":"3.7% (4件/108件)","rarity":2,"type":"positive","description":"普段は厳しい目で☆1を連発するクレーマー気質。でも本当に良いものには心を開き、☆5をつける素直な一面も。不満を持ちやすいが、それを乗り越えた感動には弱い。","catchphrase":"「まぁ、これは認めるよ」","advice":"クレーム対応が試される相手。初期の不満を真摯に受け止め、誠実に対応すれば評価が180度変わる可能性。☆1をもらった後のリカバリーが評判を左右する。逆に放置すると炎上リスク大。","colorClass":"red-border"},
-      {"id":"perfect-seeker","pattern":"☆4→☆2","name":"パーフェクトシーカー","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/3a0f1479-9fe2-48d4-a864-19510c34341f.png","probability":"2.8% (3件/108件)","rarity":2,"type":"negative","description":"基本は「まあまあ」の☆4だけど、些細な欠点を見つけると容赦なく☆2まで下げる辛口タイプ。完璧を100点として、マイナスポイントを積み重ねていく減点方式の評価者。細かいところまで見ているプロ意識の高いレビュアー。","catchphrase":"「惜しい！あれさえなければねぇ」","advice":"小さな欠点が命取り。トイレの清潔さ、スタッフの言葉遣い、提供スピードなど、細部のミスを見逃さない。チェックリストを作って品質管理を徹底することが重要。欠点を潰していけば高評価につながる。","colorClass":"silver-border"},
-      {"id":"slow-starter","pattern":"☆3→☆4","name":"スロースターター","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/b0a647b6-64e1-44a1-b140-e16e5d348394.png","probability":"2.8% (3件/108件)","rarity":2,"type":"neutral","description":"初訪問は☆3でスタート。リピートして良さを発見すると☆4に上げていく、段階的評価タイプ。一発では判断せず、何度か通って総合的に判断する慎重派。長期的な視点で店を応援したい気持ちも。","catchphrase":"「まずは様子見だね」","advice":"初回の印象は「普通」でも、リピート時の一貫性と改善姿勢が評価される。2回目以降の来店で「進化している」と感じさせることが☆4への昇格の鍵。常連客を大切にする姿勢が効果的。","colorClass":"green-border"},
-      {"id":"treasure-hunter","pattern":"☆2→☆5","name":"トレジャーハンター","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/9ff86e20-ebca-4c3a-bde3-f4b0a85cbd5c.png","probability":"1.9% (2件/108件)","rarity":1,"type":"positive","description":"最初は「うーん」と☆2をつけがち。でも隠れた魅力や意外な良さを発見すると、一気に☆5まで評価が急上昇する振れ幅の大きいタイプ。第一印象より中身を重視する玄人好み。","catchphrase":"「見た目で判断しちゃダメだね」","advice":"第一印象よりも「本質的な価値」で勝負。料理の味、スタッフの人柄、隠れたこだわりなど、気づいてもらえる工夫を。SNS映えより実質重視。説明やPOPで「こだわり」を伝えると◎。","colorClass":"orange-border"},
-      {"id":"destroyer","pattern":"☆1→☆2","name":"デストロイヤー","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/0f5fe590-3fca-41df-8f3f-031cb627f5ff.png","probability":"1.9% (2件/108件)","rarity":1,"type":"negative","description":"基本的に何でも気に入らない、常に不満を抱えているタイプ。最低評価の☆1と、「まあ最悪じゃない」という☆2を行き来する。満足させるのは至難の業で、店舗側には試練の存在。","catchphrase":"「どこもかしこもダメだね」","advice":"【難易度MAX】このタイプを満足させるのは非常に困難。むしろ低評価を前提に、他の顧客への誠実な対応を見せることで第三者の評価を得る戦略が有効。クレームへの冷静な対応力が試される。","colorClass":"red-border"},
-      {"id":"trust-breaker","pattern":"☆4→☆1","name":"トラストブレイカー","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/dd3ff37f-b08d-4f39-8e2d-149573b31088.png","probability":"0.9% (1件/108件)","rarity":0,"type":"negative","description":"普段は☆4で満足する好意的なタイプ。でも一度でも期待を裏切られると、☆1まで急降下する。信頼関係を重視し、裏切り行為（宣伝と違う、前回と質が違うなど）に敏感。","catchphrase":"「期待してたのに、裏切られた…」","advice":"【信頼管理型】広告や前回の体験と一貫性を保つことが最重要。「写真と実物が違う」「前回より質が落ちた」は厳禁。常に同じクオリティを維持し、約束を守ることで信頼を築く。","colorClass":"silver-border"},
-      {"id":"grower","pattern":"☆2→☆4","name":"グロウアー","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/b07a41d3-bed4-47b1-a422-e47f913d063a.png","probability":"0.9% (1件/108件)","rarity":0,"type":"positive","description":"控えめに☆2からスタートし、良い点を見つけて☆4まで上げていく穏健派。悪い点より良い点を探そうとするポジティブ思考の持ち主。時間をかけて評価を上げていく成長型レビュアー。","catchphrase":"「よく見ると、いいところあるね」","advice":"改善の努力が評価される。初回の欠点を素直に受け止め、改善している姿勢を見せれば評価が上がる。小さな改善の積み重ねをSNSで発信すると、このタイプの心に響く。","colorClass":"orange-border"},
-      {"id":"dream-crusher","pattern":"☆5→☆2","name":"ドリームクラッシャー","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/50452c11-8f85-40c5-a70b-b059f210c619.png","probability":"0.9% (1件/108件)","rarity":0,"type":"negative","description":"最高の期待を持って☆5を狙うが、少しでも理想と違うと一気に☆2まで落とす落差激しいタイプ。「こうあるべき」という強い理想像を持ち、そこから外れると厳しい評価に。完璧主義だが、完璧でない場合の失望も大きい。","catchphrase":"「期待してたのと違う…」","advice":"事前期待のコントロールが最重要。過剰な宣伝や誇大表現は逆効果。「このお店はこういう感じです」と正直に伝え、ギャップを生まない工夫を。メニュー写真や説明文は現実に即した表現にすることで、理想と現実のズレを防ぐ。","colorClass":"gold-border"},
-      {"id":"dark-spiral","pattern":"☆2→☆1","name":"ダークスパイラル","image":"https://cdn1.genspark.ai/user-upload-image/gemini_generated/7338f73d-27b7-4776-a869-6b91ade3ff27.png","probability":"0.9% (1件/108件)","rarity":0,"type":"negative","description":"既に不満がある状態(☆2)から、さらに悪い体験をして☆1に転落させる、負のスパイラルタイプ。一度ネガティブな印象を持つと、その後の体験も悪い方向に解釈しがち。期待値が低い分、小さな失敗も「やっぱりダメだ」と確信に変わる。","catchphrase":"「前も悪かったけど、今回はもっと酷い」","advice":"【リカバリーのラストチャンス】☆2の段階で既に不満がある状態。この時点でのリカバリーが最後のチャンス。クレーム対応を迅速かつ誠実に行い、「改善しようとしている」姿勢を見せることで☆1への転落を防ぐ。一度☆1になると修復困難。","colorClass":"orange-border"}
-    ];
-
+    // filter / search
     let currentFilter = 'all';
-    let currentSearch = '';
+    const grid = document.getElementById('characterGrid');
+    const cards = Array.from(grid.querySelectorAll('.character-card'));
 
-    function createCharacterCard(character, index) {
-      const rarityStars = '★'.repeat(character.rarity) + '☆'.repeat(5 - character.rarity);
-      const probabilityValue = parseFloat(character.probability.match(/(\\d+\\.\\d+)/)[0]);
-
-      return `
-        <div class="character-card ${character.colorClass} rounded-3xl p-6 fade-in-up" style="animation-delay: ${index * 0.1}s" data-type="${character.type}" data-character="${character.name.toLowerCase()} ${character.pattern}">
-          <div class="text-center mb-6 relative">
-            ${character.rarity === 0 ? '<div class="sparkle" style="top: 10px; left: 20px;"><i class="fas fa-sparkles"></i></div>' : ''}
-            <div class="relative inline-block ${character.colorClass} rounded-full p-4 mb-4">
-              <img src="${character.image}" alt="${character.name}" class="character-image ${character.colorClass}" onclick="openModal('${character.image}', '${character.name}')">
-            </div>
-            ${character.rarity === 0 ? '<div class="sparkle" style="top: 10px; right: 20px; animation-delay: 1s;"><i class="fas fa-star"></i></div>' : ''}
-
-            <div class="text-4xl font-black mb-2">${character.pattern}</div>
-            <div class="text-2xl font-bold mb-2">${character.name}</div>
-            <div class="star-rating text-xl mb-2">${rarityStars} ${character.rarity === 5 ? '(最多タイプ)' : character.rarity === 0 ? '(超レア)' : ''}</div>
-
-            <div class="mb-4">
-              <div class="text-lg font-semibold mb-1">発生確率: ${character.probability}</div>
-              <div class="progress-bar w-full" style="width: ${probabilityValue}%"></div>
-            </div>
-          </div>
-
-          <div class="space-y-4">
-            <div>
-              <h4 class="font-bold text-lg mb-2">性格タイプ</h4>
-              <p class="text-gray-700">${character.description}</p>
-            </div>
-            <div>
-              <h4 class="font-bold text-lg mb-2">口ぐせ</h4>
-              <p class="text-indigo-600 font-medium italic">${character.catchphrase}</p>
-            </div>
-            <div>
-              <h4 class="font-bold text-lg mb-2">店舗側が気を付けるポイント</h4>
-              <p class="text-gray-700">${character.advice}</p>
-            </div>
-            <div class="flex space-x-2 pt-4">
-              <button onclick="shareTwitter('${character.name}', '${character.pattern}')" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition-colors">
-                <i class="fab fa-twitter mr-2"></i>Twitter
-              </button>
-              <button onclick="shareLine('${character.name}', '${character.pattern}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition-colors">
-                <i class="fab fa-line mr-2"></i>LINE
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderCharacters() {
-      const grid = document.getElementById('characterGrid');
-      let filteredCharacters = characters;
-
-      if (currentFilter !== 'all') {
-        filteredCharacters = characters.filter(char => char.type === currentFilter);
-      }
-      if (currentSearch) {
-        filteredCharacters = filteredCharacters.filter(char =>
-          char.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
-          char.pattern.includes(currentSearch)
-        );
-      }
-      grid.innerHTML = filteredCharacters.map((char, index) => createCharacterCard(char, index)).join('');
-    }
-
-    function openModal(imageSrc, alt) {
-      const modal = document.getElementById('imageModal');
-      const modalImg = document.getElementById('modalImage');
-      modal.style.display = 'block';
-      modalImg.src = imageSrc;
-      modalImg.alt = alt;
-    }
-    function closeModal() { document.getElementById('imageModal').style.display = 'none'; }
-
-    function shareTwitter(name, pattern) {
-      const text = `私は${name}(${pattern})タイプでした！あなたは何タイプ？ #Googleレビュアー診断`;
-      const url = window.location.href;
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-    }
-    function shareLine(name, pattern) {
-      const text = `私は${name}(${pattern})タイプでした！あなたは何タイプ？`;
-      const url = window.location.href;
-      window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      renderCharacters();
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          currentFilter = this.dataset.filter;
-          renderCharacters();
-        });
+    function applyFilter() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      cards.forEach(card => {
+        const type = card.getAttribute('data-type');
+        const text = card.getAttribute('data-character').toLowerCase();
+        const matchType = (currentFilter === 'all') || (type === currentFilter);
+        const matchSearch = !q || text.includes(q);
+        card.style.display = (matchType && matchSearch) ? '' : 'none';
       });
-      document.getElementById('searchInput').addEventListener('input', function() {
-        currentSearch = this.value;
-        renderCharacters();
-      });
-      document.getElementById('imageModal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        applyFilter();
       });
     });
-  </script>
 
-  <!-- Optional: Cloudflare Beacon analytics (remove if not needed) -->
-  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
-          integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="
-          data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79"}'
-          crossorigin="anonymous"></script>
+    document.getElementById('searchInput').addEventListener('input', applyFilter);
+
+    // Image modal
+    function openModal(src, alt) {
+      const m = document.getElementById('imageModal');
+      const img = document.getElementById('modalImage');
+      img.src = src; img.alt = alt;
+      m.classList.add('open');
+    }
+    function closeModal(){ document.getElementById('imageModal').classList.remove('open'); }
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+
+    // Animate bars on load
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+      const w = bar.style.width;
+      bar.style.width = '0';
+      requestAnimationFrame(() => { bar.style.transition = 'width .6s ease'; bar.style.width = w; });
+    });
+  </script>
 </body>
 </html>
